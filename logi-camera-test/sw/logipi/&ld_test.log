@@ -1,0 +1,6 @@
+TIMESTAMP, TEST_NAME, TYPE, TEST_MSG
+1464032905,MAIN,INFO,Press Enter to begin testing 
+1464032907,MAIN,INFO,----------------Loading FPGA--------------
+1464032908,MAIN,INFO,-----------------Starting Test-------------
+1464032908,COM,INFO,-----------------Cam Test---------------
+1464032908,CAM,ERROR,CAM test failed
