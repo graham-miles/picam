@@ -2,15 +2,10 @@ CC = gcc
 LD_FLAGS = -lc -ljpeg
 LDFLAGS= #-lrt
 
-all:
-	clean 
-	test_logi_cam
-
-clean:
-	rm -f *.a *.o test_logi_cam
-	rm -rf *o logi_loader
-
 test_logi_cam: test.c wishbone_wrapper.c jpeg_func.c logi_loader.c i2c_loader.c bit_bang_loader.c
 	$(CC) $(LDFLAGS) -DLOGIPI -o  logi_loader logi_loader.c i2c_loader.c bit_bang_loader.c
 	$(CC) -D LOGIPI -o $@ test.c wishbone_wrapper.c jpeg_func.c $(LD_FLAGS)
 
+clean:
+	rm -f *.a *.o test_logi_cam
+	rm -rf *o logi_loade
