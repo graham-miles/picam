@@ -39,6 +39,7 @@ int min(int a, int b){
 }
 
 int grab_frame(void){
+	FILE* jpeg_fd;
 	int i = 0;
     unsigned int nb = 0 ;
     float y, u, v ;
@@ -50,6 +51,12 @@ int grab_frame(void){
     unsigned short cmd_buffer[8] ;
     unsigned short vsync1, vsync2 ;
     unsigned char * start_buffer, * end_ptr;
+    sprintf(jpeg_file_name, "./grabbed_frame%04d.jpg", inc);
+		jpeg_fd  = fopen(jpeg_file_name, "wb");
+		if(jpeg_fd == NULL){
+			printf("Error opening output file \n");
+			exit(EXIT_FAILURE);
+		}
     cmd_buffer[0] = 0 ;
         cmd_buffer[1] = 0 ;
         cmd_buffer[2] = 0 ;
