@@ -86,6 +86,9 @@ int grab_frame(void){
 	if(vsync1 == 0x55AA && vsync2 == 0x55AA){
 			vsync = 1 ;
 			fPointer = start_buffer ;
+	} else {
+		printf("VSYNC not working\n");
+		exit(0);
 	}
 	if(vsync){
 		for(i = 0 ; i < image_width*image_height ; i ++){
