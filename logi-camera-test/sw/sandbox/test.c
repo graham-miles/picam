@@ -59,9 +59,9 @@ int grab_frame(void){
 			exit(EXIT_FAILURE);
 		}
     cmd_buffer[0] = 0 ;
-        cmd_buffer[1] = 0 ;
-        cmd_buffer[2] = 0 ;
-        wishbone_write((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
+    cmd_buffer[1] = 0 ;
+    cmd_buffer[2] = 0 ;
+    wishbone_write((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
 	nb = 0 ;
         while(nb < (((image_width)*(image_height)*NB_CHAN)+4)*NB_GRAB){
                 wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
@@ -82,6 +82,7 @@ int grab_frame(void){
 			start_buffer+=2 ;
 			vsync1 = *((unsigned short *) start_buffer) ;
 			vsync2 = *((unsigned short *) &start_buffer[(image_width*image_height*NB_CHAN)+2]) ;
+			printf("vsync1: %d\n --- vsync2: %d\n --- start_buffer: %d\n", vsync1, vsyn2, start_buffer);
 	}
 	if(vsync1 == 0x55AA && vsync2 == 0x55AA){
 			vsync = 1 ;
