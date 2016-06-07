@@ -51,6 +51,7 @@ int grab_frame(void){
     unsigned short cmd_buffer[8] ;
     unsigned short vsync1, vsync2 ;
     unsigned char * start_buffer, * end_ptr;
+    int inc=0;
     sprintf(jpeg_file_name, "./grabbed_frame%04d.jpg", inc);
 		jpeg_fd  = fopen(jpeg_file_name, "wb");
 		if(jpeg_fd == NULL){
