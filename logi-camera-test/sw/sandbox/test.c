@@ -15,9 +15,17 @@
 
 char text_buffer [512] ;
 
-#define IMAGE_WIDTH 640
-#define IMAGE_HEIGHT 480
+#define MAX_WIDTH 640
+#define MAX_HEIGHT 480
 #define NB_CHAN 2
+#define NB_GRAB 1
+#define SINGLE_ACCESS_SIZE 2048
+
+unsigned char grab_buffer[MAX_WIDTH*MAX_HEIGHT*3*2] ;
+unsigned char rgb_buffer[MAX_WIDTH*MAX_HEIGHT*3] ;
+unsigned int fifo_id = 0 ;
+unsigned int image_width = MAX_WIDTH ;
+unsigned int image_height = MAX_HEIGHT ;
 
 char rgb_file_name [128] ;
 char yuv_file_name [128] ;
@@ -88,7 +96,7 @@ int grab_frame(void){
 			rgb_buffer[(i*3)+1] = (unsigned char) abs(min(g, 255)) ;
 			rgb_buffer[(i*3)+2] = (unsigned char) abs(min(b, 255)) ;
 		} 
-		write_jpegfile(rgb_buffer, IMAGE_WIDTH, IMAGE_HEIGHT, 3, jpeg_fd, 100);
+		write_jpegfile(rgb_buffer, image_width, image_height, 3, jpeg_fd, 100);
 		fclose(jpeg_fd);
 	}
 	return 0 ;
