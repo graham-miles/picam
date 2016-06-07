@@ -15,8 +15,8 @@
 
 char text_buffer [512] ;
 
-#define IMAGE_WIDTH 160 
-#define IMAGE_HEIGHT 120
+#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 480
 #define NB_CHAN 2
 
 char rgb_file_name [128] ;
