@@ -31,85 +31,55 @@ int min(int a, int b){
 }
 
 int grab_frame(void){
-	unsigned short cmd_buffer[8] ;
-	unsigned short vsync1, vsync2 ;
-	FILE * rgb_fd, * yuv_fd, * jpeg_fd ;
-	int i,j, res, inc ;
-	unsigned int nbFrames = 1 ;
-	unsigned int pos = 0 ;
-	unsigned int nb = 0 ;
-	unsigned char * image_buffer, * start_buffer, * end_ptr; //yuv frame buffer
-	unsigned char * rgb_buffer ;
-	unsigned short fifo_state, fifo_data ;
-	float y, u, v ;
-	float r, g, b ;
-	unsigned int retry_counter = 0 ;
-	unsigned int retry_pixel = 0 ;
-	image_buffer = (unsigned char *) malloc(IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN*4+1024); // 1024 extra to ease the read function
-        rgb_buffer = (unsigned char *) malloc(IMAGE_WIDTH*IMAGE_HEIGHT*3);
-	if(image_buffer == NULL || rgb_buffer == NULL){
-		printf("allocation error ! \n");
-		return -1 ;
-	}
+	int i = 0;
+    unsigned int nb = 0 ;
+    float y, u, v ;
+    float r, g, b ;
+    int remaining ; 
+    char * fPointer ;
+    int outlen = 0;
+    int vsync = 0 ;
+    unsigned short cmd_buffer[8] ;
+    unsigned short vsync1, vsync2 ;
+    unsigned char * start_buffer, * end_ptr;
+    cmd_buffer[0] = 0 ;
+        cmd_buffer[1] = 0 ;
+        cmd_buffer[2] = 0 ;
+        wishbone_write((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
+	nb = 0 ;
+        while(nb < (((image_width)*(image_height)*NB_CHAN)+4)*NB_GRAB){
+                wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
+                while(cmd_buffer[2] < SINGLE_ACCESS_SIZE/2){
+                         wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
+                }
+                wishbone_read(&grab_buffer[nb], SINGLE_ACCESS_SIZE, FIFO_ADDR);
+                nb += SINGLE_ACCESS_SIZE ;
+        }
 
-	for(inc = 0 ; inc < (nbFrames && retry_counter < 5) ; ){
-		sprintf(jpeg_file_name, "./grabbed_frame%04d.jpg", inc);
-		jpeg_fd  = fopen(jpeg_file_name, "wb");
-		if(jpeg_fd == NULL){
-			printf("Error opening output file \n");
-			exit(EXIT_FAILURE);
-		}
-		printf("issuing reset to fifo \n");
-		cmd_buffer[0] = 0 ;
-		cmd_buffer[1] = 0 ;
-		cmd_buffer[2] = 0 ;
-		wishbone_write((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
-		wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
-		printf("fifo size : %d, free : %d, available : %d \n", cmd_buffer[0], cmd_buffer[1], cmd_buffer[2]);  // reading and printing fifo states
-		nb = 0 ;
-		retry_pixel = 0 ; 
-		while(nb < (((IMAGE_WIDTH)*(IMAGE_HEIGHT)*NB_CHAN)+4)){
-			wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
-			while(cmd_buffer[2] < 1024){
-				 wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
-				 retry_pixel ++ ;
-			}
-			wishbone_read_noinc(&image_buffer[nb], 2048, FIFO_ADDR);
-			nb += 2048 ;
-		}
-		printf("nb : %u \n", nb);
-		start_buffer = image_buffer ;
-		end_ptr = &image_buffer[IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN*3];
-		vsync1 = *((unsigned short *) start_buffer) ;
-		vsync2 = *((unsigned short *) &start_buffer[(IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN)+2]) ;
-		while(vsync1 != 0x55AA && vsync2 != 0x55AA && start_buffer < end_ptr){
+	i = 0 ;
+	vsync = 0 ;
+	start_buffer = grab_buffer ;
+	end_ptr = &start_buffer[((image_width*image_height*NB_CHAN)+4)*NB_GRAB];
+	vsync1 = *((unsigned short *) start_buffer) ;
+	vsync2 = *((unsigned short *) &start_buffer[(image_width*image_height*NB_CHAN)+2]) ;
+	while(vsync1 != 0x55AA && vsync2 != 0x55AA && start_buffer < end_ptr){
 			start_buffer+=2 ;
 			vsync1 = *((unsigned short *) start_buffer) ;
-			vsync2 = *((unsigned short *) &start_buffer[(IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN)+2]) ;
-		}
-		if(vsync1 == 0x55AA && vsync2 == 0x55AA){
-			inc ++ ;
-			printf("frame found !\n");
-		}else{
-			printf("sync not found !\n");
-			fclose(jpeg_fd);
-			retry_counter ++ ;
-			continue ;
-		}
-		start_buffer += 2 ;
-		for(i = 0 ; i < IMAGE_WIDTH*IMAGE_HEIGHT ; i ++){
-			y = (float) start_buffer[(i*NB_CHAN)] ;
-			if(NB_CHAN == 2){
-				if(i%2 == 0){
-					u = (float) start_buffer[(i*2)+1];
-					v = (float) start_buffer[(i*2)+3];
-				}else{
-					u = (float) start_buffer[(i*2)-1];
-        	        		v = (float) start_buffer[(i*2)+1];
-				}
+			vsync2 = *((unsigned short *) &start_buffer[(image_width*image_height*NB_CHAN)+2]) ;
+	}
+	if(vsync1 == 0x55AA && vsync2 == 0x55AA){
+			vsync = 1 ;
+			fPointer = start_buffer ;
+	}
+	if(vsync){
+		for(i = 0 ; i < image_width*image_height ; i ++){
+			y = (float) fPointer[(i*2)] ;
+			if(i%2 == 1){
+				u = (float) fPointer[(i*2)+1];
+				v = (float) fPointer[(i*2)+3];
 			}else{
-				u = 128 ;
-				v = 128 ;
+				u = (float) fPointer[(i*2)-1];
+        	        	v = (float) fPointer[(i*2)+1];
 			}
 			r =  y + (1.4075 * (v - 128.0));
 			g =  y - (0.3455 * (u - 128.0)) - (0.7169 * (v - 128.0));
@@ -121,9 +91,6 @@ int grab_frame(void){
 		write_jpegfile(rgb_buffer, IMAGE_WIDTH, IMAGE_HEIGHT, 3, jpeg_fd, 100);
 		fclose(jpeg_fd);
 	}
-	if(retry_counter == 5){
-		return -1 ;
-	}
 	return 0 ;
 }
 
@@ -131,10 +98,10 @@ int main(int argc, char ** argv){
 
 	if (grab_frame() < 0) 
 	{
-		printf("FAIL");
+		printf("\nFAIL");
 		return -1; 
 	}
-	printf("SUCCESS");
+	printf("\nSUCCESS");
 	return 0 ;
 	
 }
