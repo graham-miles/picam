@@ -15,8 +15,8 @@
 
 char text_buffer [512] ;
 
-#define IMAGE_WIDTH 640 
-#define IMAGE_HEIGHT 480
+#define IMAGE_WIDTH 160 
+#define IMAGE_HEIGHT 120
 #define NB_CHAN 2
 
 char rgb_file_name [128] ;
@@ -70,14 +70,14 @@ int grab_frame(void){
 		retry_pixel = 0 ; 
 		while(nb < ((IMAGE_WIDTH)*(IMAGE_HEIGHT)*NB_CHAN)*3 && retry_pixel < 10000){
 			wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
-			while(cmd_buffer[2] < 1024 && retry_pixel < 100000){
+			while(cmd_buffer[2] < 1024 && retry_pixel < 10000){
 				 wishbone_read((unsigned char *) cmd_buffer, 6, FIFO_ADDR+FIFO_CMD_OFFSET);
 				 retry_pixel ++ ;
 			}
 			wishbone_read_noinc(&image_buffer[nb], 2048, FIFO_ADDR);
 			nb += 2048 ;
 		}
-		if(retry_pixel == 100000){
+		if(retry_pixel == 10000){
 			printf("no camera detected !\n");
                         fclose(jpeg_fd);
 			return -1 ;
