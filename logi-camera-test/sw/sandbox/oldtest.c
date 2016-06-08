@@ -138,7 +138,7 @@ int grab_frame(void){
 }
 
 int main(int argc, char ** argv){
-	if (get_frame() < 0) 
+	if (grab_frame() < 0) 
 	{
 		printf("\nFAIL");
 		return -1; 
