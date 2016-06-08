@@ -78,11 +78,13 @@ int grab_frame(void){
 	end_ptr = &start_buffer[((image_width*image_height*NB_CHAN)+4)*NB_GRAB];
 	vsync1 = *((unsigned short *) start_buffer) ;
 	vsync2 = *((unsigned short *) &start_buffer[(image_width*image_height*NB_CHAN)+2]) ;
+	printf("vsync1: %d\nvysnc2: %d\nstart_buffer: %d\nend_ptr: %d\n", vsync1, vsync2, start_buffer, end_ptr);
+	printf("while boolean: %d & %d & %d\n", vsync1 != 0x55AA, vsync2 != 0x55AA, start_buffer < end_ptr);
 	while(vsync1 != 0x55AA && vsync2 != 0x55AA && start_buffer < end_ptr){
 			start_buffer+=2 ;
 			vsync1 = *((unsigned short *) start_buffer) ;
 			vsync2 = *((unsigned short *) &start_buffer[(image_width*image_height*NB_CHAN)+2]) ;
-			printf("vsync1: %d\n --- vsync2: %d\n --- start_buffer: %d\n", vsync1, vsyn2, start_buffer);
+			printf("vsync1: %d\nvsync2: %d\nstart_buffer: %d\n", vsync1, vsync2, start_buffer);
 	}
 	if(vsync1 == 0x55AA && vsync2 == 0x55AA){
 			vsync = 1 ;
