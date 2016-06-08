@@ -15,8 +15,8 @@
 
 char text_buffer [512] ;
 
-#define MAX_WIDTH 640
-#define MAX_HEIGHT 480
+#define MAX_WIDTH 160
+#define MAX_HEIGHT 120
 #define NB_CHAN 2
 #define NB_GRAB 1
 #define SINGLE_ACCESS_SIZE 2048
