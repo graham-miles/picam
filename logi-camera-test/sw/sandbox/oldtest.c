@@ -15,8 +15,8 @@
 
 char text_buffer [512] ;
 
-#define IMAGE_WIDTH 640
-#define IMAGE_HEIGHT 480
+#define IMAGE_WIDTH 160 
+#define IMAGE_HEIGHT 120
 #define NB_CHAN 2
 
 char rgb_file_name [128] ;
@@ -79,7 +79,7 @@ int grab_frame(void){
 		}
 		printf("nb : %u \n", nb);
 		start_buffer = image_buffer ;
-		end_ptr = &image_buffer[(IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN)+4)];
+		end_ptr = &image_buffer[((IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN)+4)];
 		vsync1 = *((unsigned short *) start_buffer) ;
 		vsync2 = *((unsigned short *) &start_buffer[(IMAGE_WIDTH*IMAGE_HEIGHT*NB_CHAN)+2]) ;
 		printf("vsync1: %d\nvysnc2: %d\nstart_buffer: %d\nend_ptr: %d\n", vsync1, vsync2, start_buffer, end_ptr);
