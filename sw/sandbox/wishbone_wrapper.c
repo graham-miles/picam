@@ -40,6 +40,11 @@ int logipi_write(unsigned int add, unsigned char * data, unsigned int size, unsi
 int logipi_read(unsigned int add, unsigned char * data, unsigned int size, unsigned char inc);
 
 int spi_init(void){
+	printf("\nlogipi:");
+	printf(LOGIPI);
+	printf("\nlogibone:");
+	printf(LOGIBONE);
+
 	int ret ;
 	fd = open(device, O_RDWR);
 	if (fd < 0){
